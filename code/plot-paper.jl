@@ -8,7 +8,7 @@ using PrettyTables
 
 const METHODS = (:exact, :lbfgs)
 
-function load_stats(dir::AbstractString, stats, suffix = "")
+function load_stats(dir::AbstractString, stats, suffix = ""; methods = METHODS)
 
   for method in METHODS
 
@@ -53,7 +53,7 @@ function load_stats(dir::AbstractString, stats, suffix = "")
   return stats
 end
 
-function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasible = Dict{Symbol,Set{String}}(),)
+function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasible = Dict{Symbol,Set{String}}(), keys = (:l2penalty, :ipopt))
   
   solved(df) = begin
     # Retrieve certification
@@ -69,7 +69,6 @@ function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasibl
     ("objective", "obj", df -> .!solved(df) * Inf + df.neval_obj),
     ("CPU time", "time", df -> .!solved(df) * Inf + df.elapsed_time),
   ]
-  keys = (:l2penalty, :ipopt)
   keys = prefix == "" ? keys : Symbol.(string.(keys) .* "_" .* prefix)
   label_dict = Dict(
     :l2penalty_exact => "Penelopt",
@@ -106,7 +105,7 @@ function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasibl
     end
     name =
       prefix == "" ? "paper/figs/CUTEst-$(abv).pdf" :
-      "paper/figs/CUTEst-" * prefix * "-$(abv).pdf"
+      "paper/figs/CUTEst-" * prefix * "-" * String(keys[2]) * "-$(abv).pdf"
     savefig(name)
   end
 end
@@ -231,3 +230,32 @@ plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infe
 
 # generate tables
 infeasibility_table(stats, prefix = "exact", certified_infeasible = certified_infeasible)
+
+## MadNLP and Uno benchmarks
+
+madnlp_dir = joinpath("code/artifacts", "MadNLP")
+@info "Loading madnlp benchmark results"
+load_stats(madnlp_dir, stats, "", methods = (:exact,))
+
+uno_dir = joinpath("code/artifacts", "Uno")
+@info "Loading uno benchmark results"
+load_stats(uno_dir, stats, "", methods = (:exact,))
+
+madnlp_certification =
+  load_precomputed_certification(madnlp_dir)
+uno_certification =
+  load_precomputed_certification(uno_dir)
+
+register_certified!(
+  certified_infeasible,
+  madnlp_certification,
+  :madnlp_exact,
+)
+register_certified!(
+  certified_infeasible,
+  uno_certification,
+  :uno_exact,
+)
+
+plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :madnlp))
+plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :uno))
