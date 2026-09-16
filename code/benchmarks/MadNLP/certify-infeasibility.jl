@@ -4,6 +4,7 @@ using CUTEst, MadNLP, NLPModels, SolverCore, NLPModelsIpopt, NLPModelsModifiers,
 include(joinpath(@__DIR__, "..", "common", "load-stats-splits.jl"))
 include(joinpath(@__DIR__, "madnlp-stats-adapter.jl"))
 include(joinpath(@__DIR__, "madnlp-exact-solve.jl")) # defines BENCHMARK_MAX_TIME + madnlp_exact_solve
+include(joinpath(@__DIR__, "..", "common", "remove-fixed-var.jl")) # uses BENCHMARK_MAX_TIME, must come after
 include(joinpath(@__DIR__, "..", "common", "infeasibility-checker.jl")) # uses BENCHMARK_MAX_TIME, must come after
 
 result_dir = joinpath(@__DIR__, "result")

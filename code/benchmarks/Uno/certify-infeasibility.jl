@@ -4,7 +4,9 @@ using CUTEst, UnoSolver, NLPModels, SolverCore, NLPModelsIpopt, NLPModelsModifie
 include(joinpath(@__DIR__, "..", "common", "load-stats-splits.jl"))
 include(joinpath(@__DIR__, "uno-stats-adapter.jl"))
 include(joinpath(@__DIR__, "uno-exact-solve.jl")) # defines BENCHMARK_MAX_TIME + uno_exact_solve
+include(joinpath(@__DIR__, "..", "common", "remove-fixed-var.jl")) # uses BENCHMARK_MAX_TIME, must come after
 include(joinpath(@__DIR__, "..", "common", "infeasibility-checker.jl")) # uses BENCHMARK_MAX_TIME, must come after
+
 
 result_dir = joinpath(@__DIR__, "result")
 stats = load_stats_splits(result_dir, "stats_uno_exact")

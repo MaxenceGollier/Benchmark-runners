@@ -1,6 +1,6 @@
 # Adapted from Penelopt.jl's benchmark/utils/infeasibility-checker.jl
 
-using CUTEst, NLPModels, NLPModelsIpopt, NLPModelsModifiers, Penelopt, LinearAlgebra, DataFrames
+using CUTEst, NLPModels, NLPModelsIpopt, NLPModelsModifiers, LinearAlgebra, DataFrames
 
 include(joinpath(@__DIR__, "trust-region-nls.jl"))
 
