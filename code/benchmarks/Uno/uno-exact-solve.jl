@@ -7,6 +7,7 @@ uno_exact_solve(nlp) = uno_exact(
   nlp,
   # Logging
   logger = "SILENT",
+  linear_solver = "MUMPS",
   print_solution = false,
   # Tolerances
   primal_tolerance = BENCHMARK_TOL,
