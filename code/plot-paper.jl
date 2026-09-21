@@ -10,7 +10,7 @@ const METHODS = (:exact, :lbfgs)
 
 function load_stats(dir::AbstractString, stats, suffix = ""; methods = METHODS)
 
-  for method in METHODS
+  for method in methods
 
     @info "Loading $(method) benchmark results"
 
@@ -18,10 +18,7 @@ function load_stats(dir::AbstractString, stats, suffix = ""; methods = METHODS)
 
     for (root, _, files) in walkdir(dir)
       for file in files
-        if (
-          startswith(file, "stats_$(method)") ||
-          (startswith(file, "stats_ipopt_$(method)") && suffix == "")
-        ) && occursin(r"\d+\.jld2$", file)
+        if occursin(Regex("_$(method)_\\d+\\.jld2\$"), file)
           push!(file_splits, joinpath(root, file))
         end
       end
@@ -30,6 +27,8 @@ function load_stats(dir::AbstractString, stats, suffix = ""; methods = METHODS)
     sort!(file_splits)
 
     n_splits = length(file_splits)
+
+    n_splits == 0 && continue
 
     # Load the first split and initialize the dictionary
     file = file_splits[1]
@@ -53,7 +52,7 @@ function load_stats(dir::AbstractString, stats, suffix = ""; methods = METHODS)
   return stats
 end
 
-function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasible = Dict{Symbol,Set{String}}(), keys = (:l2penalty, :ipopt))
+function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasible = Dict{Symbol,Set{String}}(), keys = (:l2penalty, :ipopt), show_ylabel::Bool = true)
   
   solved(df) = begin
     # Retrieve certification
@@ -75,6 +74,8 @@ function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasibl
     :ipopt_exact => "Ipopt",
     :l2penalty_lbfgs => "Penelopt (BFGS)",
     :ipopt_lbfgs => "Ipopt (BFGS)",
+    :madnlp_exact => "MadNLP",
+    :uno_exact => "Uno",
   )
   label = prefix == "exact" ? Symbol.(String.(keys)[:1:(end-5)]) : keys
   for (metric, abv, f) in pairs
@@ -91,11 +92,16 @@ function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasibl
       legend = :bottomright,
     )
     series = p.series_list
+    # Always put Penelopt first (legend order)
+    order = s -> s[:label] == String(keys[1]) ? 0 : 1
+    sort!(p.series_list, by = order)
+    sort!(p.subplots[1].series_list, by = order)
     for s in series
       if s[:label] == String(keys[1])
-        continue
+        s[:linestyle] = :solid
       elseif s[:label] == String(keys[2])
         s[:linecolor] = :gray
+        s[:linestyle] = :dash
       else
         s[:linecolor] = :black
       end
@@ -103,6 +109,9 @@ function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasibl
     for s in series
       s[:label] = label_dict[Symbol(s[:label])]
     end
+    # Axis labels: x only on the CPU time row, y only on the left column
+    metric == "CPU time" || plot!(p, xlabel = "")
+    show_ylabel || plot!(p, ylabel = "")
     name =
       prefix == "" ? "paper/figs/CUTEst-$(abv).pdf" :
       "paper/figs/CUTEst-" * prefix * "-" * String(keys[2]) * "-$(abv).pdf"
@@ -225,7 +234,7 @@ register_certified!(certified_infeasible, ipopt_certification, :ipopt_exact)
 register_certified!(certified_infeasible, ipopt_certification, :ipopt_lbfgs)
 
 # plot performance profiles
-plot_perf_profile(stats, prefix = "lbfgs", certified_infeasible = certified_infeasible)
+plot_perf_profile(stats, prefix = "lbfgs", certified_infeasible = certified_infeasible, show_ylabel = false)
 plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible)
 
 # generate tables
@@ -258,4 +267,4 @@ register_certified!(
 )
 
 plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :madnlp))
-plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :uno))
+plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :uno), show_ylabel = false)
