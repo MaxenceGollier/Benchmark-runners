@@ -12,30 +12,29 @@ using UnoSolver, NLPModels, SolverCore
 """
     uno_status_to_symbol(solution_status, optimization_status)
 
-Maps Uno's raw C-level status codes to the status symbols used across this
-benchmark comparison. Both are returned as plain integers on the Julia
-stats struct (`raw.solution_status`, `raw.optimization_status`) — see:
+Maps Uno's status codes to the status symbols used across this
+benchmark comparison. See:
 https://github.com/cvanaret/Uno/blob/b7dbdfba95e6d6758bdcbeba3aeb871d65202680/interfaces/Julia/src/libuno.jl#L33-L39
 """
 function uno_status_to_symbol(solution_status::Integer, optimization_status::Integer)
-  if solution_status == 1        # FEASIBLE_KKT_POINT
+  if solution_status == UnoSolver.UNO_FEASIBLE_KKT_POINT
     return :first_order
-  elseif solution_status == 2    # FEASIBLE_FJ_POINT: stationary but degenerate
+  elseif solution_status == UnoSolver.UNO_FEASIBLE_FJ_POINT    # stationary but degenerate
     return :first_order          # (Fritz-John, not a regular KKT point — judgment call, see README)
-  elseif solution_status == 3    # INFEASIBLE_STATIONARY_POINT: certified local infeasibility
+  elseif solution_status == UnoSolver.UNO_INFEASIBLE_STATIONARY_POINT    # certified local infeasibility
     return :infeasible
-  elseif solution_status == 6    # UNBOUNDED
+  elseif solution_status in (UnoSolver.UNO_DIVERGING_ITERATE, UnoSolver.UNO_UNBOUNDED_OBJECTIVE)
     return :unbounded
-  elseif solution_status in (4, 5)  # FEASIBLE/INFEASIBLE_SMALL_STEP: stalled, not certified
+  elseif solution_status in (UnoSolver.UNO_FEASIBLE_SMALL_STEP, UnoSolver.UNO_INFEASIBLE_SMALL_STEP)  # stalled, not certified
     return :small_step
   else                            # solution_status == 0 (NOT_OPTIMAL): use optimization_status
-    if optimization_status == 1
+    if optimization_status == UnoSolver.UNO_ITERATION_LIMIT
       return :max_iter
-    elseif optimization_status == 2
+    elseif optimization_status == UnoSolver.UNO_TIME_LIMIT
       return :max_time
-    elseif optimization_status in (3, 4)  # EVALUATION_ERROR / ALGORITHMIC_ERROR
+    elseif optimization_status in (UnoSolver.UNO_EVALUATION_ERROR, UnoSolver.UNO_ALGORITHMIC_ERROR)
       return :exception
-    elseif optimization_status == 5
+    elseif optimization_status == UnoSolver.UNO_USER_TERMINATION
       return :user_terminated
     else
       return :unknown
