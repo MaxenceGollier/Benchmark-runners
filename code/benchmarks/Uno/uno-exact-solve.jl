@@ -12,9 +12,7 @@ uno_exact_solve(nlp) = uno_exact(
   # Tolerances
   primal_tolerance = BENCHMARK_TOL,
   dual_tolerance = BENCHMARK_TOL,
-  loose_primal_tolerance = 0.0,
-  loose_dual_tolerance = 0.0,
-  loose_tolerance_iteration_threshold = 0,
+  acceptable_tolerance = 0.0,
   # Deactivate residual scaling
   residual_scaling_threshold = floatmax(Float64),
   # Iteration limits
