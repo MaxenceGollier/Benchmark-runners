@@ -4,7 +4,7 @@
 
 * Artifacts for the MadNLP benchmarks: https://github.com/MaxenceGollier/Benchmark-runners/actions/runs/35108825881
 
-* Artifacts for the Uno benchmarks: https://github.com/MaxenceGollier/Benchmark-runners/actions/runs/35129844604
+* Artifacts for the Uno benchmarks: https://github.com/MaxenceGollier/Benchmark-runners/actions/runs/38646301805
 
 ## How to reproduce the figures
 ```julia
