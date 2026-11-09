@@ -195,6 +195,68 @@ function infeasibility_table(stats::Dict; prefix::String = "", certified_infeasi
   end
 end
 
+"""
+    plot_ablation(stats, variant_key, tag, label; certified_infeasible)
+
+Draw the performance profiles of Penelopt (`:l2penalty_exact`) against the variant
+`variant_key` in terms of objective and gradient evaluations, and save them to
+`paper/figs/CUTEst-ablation-<tag>-{obj,grad}.pdf`.
+Unlike `plot_perf_profile`, certifications are looked up by stats key, since the
+reference and its variants share the same `solver_name`.
+"""
+function plot_ablation(
+  stats::Dict,
+  variant_key::Symbol,
+  tag::String,
+  label::String;
+  certified_infeasible = Dict{Symbol,Set{String}}(),
+)
+  reference_key = :l2penalty_exact
+  @assert stats[reference_key].name == stats[variant_key].name "Penelopt and $(variant_key) were not run on the same problems."
+
+  solved(df, key) = begin
+    cert = get(certified_infeasible, key, Set{String}())
+    (df.status .== :first_order) .| ((df.status .== :infeasible) .& in.(df.name, Ref(cert)))
+  end
+
+  reference = copy(stats[reference_key])
+  reference.solved = solved(reference, reference_key)
+  variant = copy(stats[variant_key])
+  variant.solved = solved(variant, variant_key)
+
+  stats_subset = Dict(:reference => reference, :variant => variant)
+  labels = Dict("reference" => "Penelopt", "variant" => label)
+
+  for (metric, abv, column) in (("objective", "obj", :neval_obj), ("gradient", "grad", :neval_grad))
+    p = performance_profile(
+      stats_subset,
+      df -> ifelse.(df.solved, Float64.(df[!, column]), Inf),
+      title = "Number of $(metric) evaluations",
+      c = :black,
+      legendfontsize = 15,
+      guidefontsize = 15,
+      legend = :bottomright,
+    )
+    # Penelopt first in the legend, solid black; variant dashed gray.
+    order = s -> s[:label] == "reference" ? 0 : 1
+    sort!(p.series_list, by = order)
+    sort!(p.subplots[1].series_list, by = order)
+    for s in p.series_list
+      if s[:label] == "reference"
+        s[:linecolor] = :black
+        s[:linestyle] = :solid
+      else
+        s[:linecolor] = :gray
+        s[:linestyle] = :dash
+      end
+      s[:label] = labels[s[:label]]
+    end
+    # x label only on the bottom row (gradient evaluations)
+    abv == "grad" || plot!(p, xlabel = "")
+    savefig(p, "paper/figs/CUTEst-ablation-$(tag)-$(abv).pdf")
+  end
+end
+
 stats = Dict{Symbol,DataFrame}()
 
 # load Penelopt
@@ -268,3 +330,32 @@ register_certified!(
 
 plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :madnlp))
 plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :uno), show_ylabel = false)
+
+## Ablation study (exact Hessian only)
+
+no_watchdog_dir = joinpath("code/artifacts", "Penelopt-no-watchdog")
+@info "Loading Penelopt (no watchdog) benchmark results"
+load_stats(no_watchdog_dir, stats, "_nowatchdog", methods = (:exact,))
+
+monotone_dir = joinpath("code/artifacts", "Penelopt-monotone")
+@info "Loading Penelopt (monotone) benchmark results"
+load_stats(monotone_dir, stats, "_monotone", methods = (:exact,))
+
+no_watchdog_certification =
+  load_precomputed_certification(no_watchdog_dir)
+monotone_certification =
+  load_precomputed_certification(monotone_dir)
+
+register_certified!(
+  certified_infeasible,
+  no_watchdog_certification,
+  :l2penalty_exact_nowatchdog,
+)
+register_certified!(
+  certified_infeasible,
+  monotone_certification,
+  :l2penalty_exact_monotone,
+)
+
+plot_ablation(stats, :l2penalty_exact_nowatchdog, "watchdog", "Penelopt (no watchdog)", certified_infeasible = certified_infeasible)
+plot_ablation(stats, :l2penalty_exact_monotone, "nonmonotone", "Penelopt (monotone)", certified_infeasible = certified_infeasible)
