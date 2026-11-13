@@ -52,17 +52,12 @@ function load_stats(dir::AbstractString, stats, suffix = ""; methods = METHODS)
   return stats
 end
 
-function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasible = Dict{Symbol,Set{String}}(), keys = (:l2penalty, :ipopt), show_ylabel::Bool = true)
+function plot_perf_profile(stats::Dict; prefix::String = "", keys = (:l2penalty, :ipopt), show_ylabel::Bool = true)
   
-  solved(df) = begin
-    # Retrieve certification
-    solver = df[1, :solver_name]
-    cert = get(certified_infeasible, solver, Set{String}())
+  solved(df) =
+    (df.status .== :first_order) .|
+    ((df.status .== :infeasible) .& (df.certified_infeasible .== true))
 
-    # Successful status if either first order or infeasible and certified
-    return (df.status .== :first_order) .|
-    ((df.status .== :infeasible) .& in.(df.name, Ref(cert)))
-  end
   pairs = [
     ("gradient", "grad", df -> .!solved(df) * Inf + df.neval_grad),
     ("objective", "obj", df -> .!solved(df) * Inf + df.neval_obj),
@@ -119,45 +114,7 @@ function plot_perf_profile(stats::Dict; prefix::String = "", certified_infeasibl
   end
 end
 
-function load_precomputed_certification(dir::AbstractString)
-  cert_file = nothing
-  for (root, _, files) in walkdir(dir)
-    "infeasibility_certification.jld2" in files &&
-      (cert_file = joinpath(root, "infeasibility_certification.jld2"))
-  end
-
-  if cert_file === nothing
-    @warn "No precomputed infeasibility certification found under $(dir)."
-    return nothing
-  end
-
-  @info "Loading precomputed infeasibility certification from $cert_file"
-  return load(cert_file)["infeasibility_certification"]
-end
-
-function lookup_certification(report, name::AbstractString, hessian::Symbol)
-  report === nothing && return "N/A"
-  idx = findfirst(row -> row.name == name && row.hessian == hessian, eachrow(report))
-  idx === nothing && return "N/A"
-  return report[idx, :certified_locally_infeasible]
-end
-
-function register_certified!(
-  certified_infeasible::Dict{Symbol,Set{String}},
-  report,
-  key::Symbol,
-)
-  report === nothing && return certified_infeasible
-  hessian = Symbol.(split(string(key), "_"))[2]
-  for row in eachrow(report)
-    if row.hessian == hessian && row.certified_locally_infeasible === true
-      push!(get!(() -> Set{String}(), certified_infeasible, key), row.name)
-    end
-  end
-  return certified_infeasible
-end
-
-function infeasibility_table(stats::Dict; prefix::String = "", certified_infeasible::Dict{Symbol,Set{String}})
+function infeasibility_table(stats::Dict; prefix::String = "")
 
   keys = (:l2penalty, :ipopt)
   keys = prefix == "" ? keys : Symbol.(string.(keys) .* "_" .* prefix)
@@ -165,14 +122,16 @@ function infeasibility_table(stats::Dict; prefix::String = "", certified_infeasi
   penelopt_key = Symbol("l2penalty_$(prefix)")
   ipopt_key = Symbol("ipopt_$(prefix)")
 
+  cert_str(df) = string.(coalesce.(df.certified_infeasible .== true, false))
+
   df = DataFrame(
     name = stats[keys[1]].name,
     n = stats[keys[1]].nvar,
     m = stats[keys[1]].ncon,
     penelopt_status = stats[penelopt_key].status,
-    penelopt_certified = string.(in.(stats[penelopt_key].name, Ref(certified_infeasible[penelopt_key]))),
+    penelopt_certified = cert_str(stats[penelopt_key]),
     ipopt_status = stats[ipopt_key].status,
-    ipopt_certified = string.(in.(stats[ipopt_key].name, Ref(certified_infeasible[ipopt_key])))
+    ipopt_certified = cert_str(stats[ipopt_key]),
   )
 
   filter!(row -> (row.penelopt_status == :infeasible || row.ipopt_status == :infeasible), df)
@@ -207,38 +166,12 @@ ipopt_dir = joinpath("code/artifacts", "IPOPT")
 @info "Loading ipopt benchmark results"
 load_stats(ipopt_dir, stats, "")
 
-# load infeasibility results
-penelopt_certification =
-  load_precomputed_certification(penelopt_dir)
-ipopt_certification =
-  load_precomputed_certification(ipopt_dir)
-
-certified_infeasible = Dict{Symbol,Set{String}}()
-
-# reference isn't paired against ipopt below, so register it directly.
-register_certified!(
-  certified_infeasible,
-  penelopt_certification,
-  :l2penalty_exact,
-)
-register_certified!(
-  certified_infeasible,
-  penelopt_certification,
-  :l2penalty_lbfgs,
-)
-
-register_certified!(certified_infeasible, ipopt_certification, :ipopt_exact)
-register_certified!(certified_infeasible, ipopt_certification, :ipopt_lbfgs)
-
-register_certified!(certified_infeasible, ipopt_certification, :ipopt_exact)
-register_certified!(certified_infeasible, ipopt_certification, :ipopt_lbfgs)
-
 # plot performance profiles
-plot_perf_profile(stats, prefix = "lbfgs", certified_infeasible = certified_infeasible, show_ylabel = false)
-plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible)
+plot_perf_profile(stats, prefix = "lbfgs", show_ylabel = false)
+plot_perf_profile(stats, prefix = "exact")
 
 # generate tables
-infeasibility_table(stats, prefix = "exact", certified_infeasible = certified_infeasible)
+infeasibility_table(stats, prefix = "exact")
 
 ## MadNLP and Uno benchmarks
 
@@ -250,21 +183,5 @@ uno_dir = joinpath("code/artifacts", "Uno")
 @info "Loading uno benchmark results"
 load_stats(uno_dir, stats, "", methods = (:exact,))
 
-madnlp_certification =
-  load_precomputed_certification(madnlp_dir)
-uno_certification =
-  load_precomputed_certification(uno_dir)
-
-register_certified!(
-  certified_infeasible,
-  madnlp_certification,
-  :madnlp_exact,
-)
-register_certified!(
-  certified_infeasible,
-  uno_certification,
-  :uno_exact,
-)
-
-plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :madnlp))
-plot_perf_profile(stats, prefix = "exact", certified_infeasible = certified_infeasible, keys = (:l2penalty, :uno), show_ylabel = false)
+plot_perf_profile(stats, prefix = "exact", keys = (:l2penalty, :madnlp))
+plot_perf_profile(stats, prefix = "exact", keys = (:l2penalty, :uno), show_ylabel = false)
