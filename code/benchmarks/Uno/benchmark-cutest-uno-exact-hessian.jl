@@ -1,17 +1,68 @@
 using CUTEst, UnoSolver, NLPModels, SolverCore, SolverBenchmark, JLD2
 
-include(joinpath(@__DIR__, "..", "common", "cutest-exact-hessian-problems.jl"))
+include(joinpath(@__DIR__, "..", "common", "infeasibility-checker.jl"))
 include(joinpath(@__DIR__, "uno-stats-adapter.jl"))
-include(joinpath(@__DIR__, "uno-exact-solve.jl"))
+
+const BENCHMARK_TOL = 1e-6
+const BENCHMARK_MAX_TIME = 300.0
+
+problem_names = CUTEst.select_sif_problems(
+  min_con = 1,
+  only_equ_con = true,
+  custom_filter = meta -> (
+    meta["variables"]["number"] >= meta["constraints"]["number"] &&
+    meta["variables"]["free"] + meta["variables"]["fixed"] == meta["variables"]["number"]
+  ),
+)
+
+split = parse(Int, get(ENV, "CUTEST_SPLIT", "1"))
+@assert 1 <= split <= n_splits "CUTEST_SPLIT=$split is out of range 1:$n_splits"
+
+problem_names = collect(problem_names)
+
+n = length(problem_names)
+first = fld((split - 1) * n, n_splits) + 1
+last = fld(split * n, n_splits)
+
+problem_names = problem_names[first:last]
+
+@info "Running CUTEst split $split/$n_splits: problems $first:$last ($(length(problem_names)) problems)"
 
 # Problems that hang indefinitely (both MadNLP and Uno) on this CUTEst set.
 const EXCLUDED_PROBLEMS = ["CYCLOOCF", "CYCLOOCT"]
 
-problem_names, split, _n_splits = select_cutest_exact_split(n_splits = 2)
-
 problem_list = (CUTEstModel(name) for name in problem_names)
 
-solvers = Dict(:uno_exact => uno_exact_solve)
+solvers = Dict(:uno_exact => 
+  nlp -> begin
+    stats = uno_exact(
+      nlp,
+      # Logging
+      logger = "SILENT",
+      linear_solver = "MUMPS",
+      print_solution = false,
+      # Tolerances
+      primal_tolerance = BENCHMARK_TOL,
+      dual_tolerance = BENCHMARK_TOL,
+      acceptable_tolerance = 0.0,
+      # Deactivate residual scaling
+      residual_scaling_threshold = floatmax(Float64),
+      # Iteration limits
+      time_limit = BENCHMARK_MAX_TIME,
+      max_iterations = typemax(Int32),
+    )
+
+    set_solver_specific!(stats, :certified_infeasible, false)
+    if stats.status == :infeasible
+      set_solver_specific!(
+        stats,
+        :certified_infeasible,
+        certify_local_infeasibility(nlp, stats.solution),
+      )
+    end
+    return stats
+  end
+)
 
 stats = bmark_solvers(solvers, problem_list; skipif = nlp -> nlp.meta.name in EXCLUDED_PROBLEMS, prune = false)
 
