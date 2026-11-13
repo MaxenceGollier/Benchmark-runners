@@ -122,14 +122,16 @@ function infeasibility_table(stats::Dict; prefix::String = "")
   penelopt_key = Symbol("l2penalty_$(prefix)")
   ipopt_key = Symbol("ipopt_$(prefix)")
 
+  cert_str(df) = string.(coalesce.(df.certified_infeasible .== true, false))
+
   df = DataFrame(
     name = stats[keys[1]].name,
     n = stats[keys[1]].nvar,
     m = stats[keys[1]].ncon,
     penelopt_status = stats[penelopt_key].status,
-    penelopt_certified = stats[penelopt_key].certified_infeasible,
+    penelopt_certified = cert_str(stats[penelopt_key]),
     ipopt_status = stats[ipopt_key].status,
-    ipopt_certified = stats[penelopt_key].certified_infeasible
+    ipopt_certified = cert_str(stats[ipopt_key]),
   )
 
   filter!(row -> (row.penelopt_status == :infeasible || row.ipopt_status == :infeasible), df)

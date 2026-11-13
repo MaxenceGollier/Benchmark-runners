@@ -16,6 +16,8 @@ problem_names = CUTEst.select_sif_problems(
 )
 
 split = parse(Int, get(ENV, "CUTEST_SPLIT", "1"))
+n_splits = 2
+
 @assert 1 <= split <= n_splits "CUTEST_SPLIT=$split is out of range 1:$n_splits"
 
 problem_names = collect(problem_names)
