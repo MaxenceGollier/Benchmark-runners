@@ -1,4 +1,4 @@
-* Artifacts for the Penelopt benchmarks: https://github.com/MaxenceGollier/Penelopt.jl/actions/runs/34887009444
+* Artifacts for the Penelopt benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43953883491
 
 * Artifacts for the IPOPT benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43102707373
 
@@ -6,9 +6,9 @@
 
 * Artifacts for the Uno benchmarks: https://github.com/MaxenceGollier/Benchmark-runners/actions/runs/43512064959
 
-* Artifacts for Penelopt without watchdog benchmarks:
+* Artifacts for Penelopt without watchdog benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43954434444
 
-* Artifacts for monotone Penelopt benchmarks:
+* Artifacts for monotone Penelopt benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43954397609
 
 ## How to reproduce the figures
 ```julia
