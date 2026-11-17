@@ -1,15 +1,3 @@
-* Artifacts for the Penelopt benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43953883491
-
-* Artifacts for the IPOPT benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43102707373
-
-* Artifacts for the MadNLP benchmarks: https://github.com/MaxenceGollier/Benchmark-runners/actions/runs/43512053245
-
-* Artifacts for the Uno benchmarks: https://github.com/MaxenceGollier/Benchmark-runners/actions/runs/43512064959
-
-* Artifacts for Penelopt without watchdog benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43954434444
-
-* Artifacts for monotone Penelopt benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43954397609
-
 ## How to reproduce the figures
 
 1. Clone this repository.
@@ -54,3 +42,14 @@
    ```
 
 3. Artifacts can be found in the `Benchmark-runners/code/artifacts/` folder.
+
+## Precomputed artifacts source
+The repository contains precomputed artifacts generated from GitHub actions.
+These runs are publicly available at the following addresses:
+
+* Artifacts for the Penelopt benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43953883491
+* Artifacts for the IPOPT benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43102707373
+* Artifacts for the MadNLP benchmarks: https://github.com/MaxenceGollier/Benchmark-runners/actions/runs/43512053245
+* Artifacts for the Uno benchmarks: https://github.com/MaxenceGollier/Benchmark-runners/actions/runs/43512064959
+* Artifacts for Penelopt without watchdog benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43954434444
+* Artifacts for monotone Penelopt benchmarks: https://github.com/JuliaSmoothOptimizers/Penelopt.jl/actions/runs/43954397609
