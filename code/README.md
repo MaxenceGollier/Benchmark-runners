@@ -56,7 +56,7 @@ Results are moved into `Benchmark-runners/code/artifacts/<solver>/` and replace 
    ```bash
    mkdir penelopt-benchmarks && cd penelopt-benchmarks
    git clone --branch v1.0.0 https://github.com/JuliaSmoothOptimizers/Penelopt.jl
-   git clone https://github.com/MaxenceGollier/Benchmark-runners
+   git clone --branch v1.0.0 https://github.com/MaxenceGollier/Benchmark-runners
    ```
 
 2. Set up the Penelopt benchmark environment:
