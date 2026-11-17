@@ -47,7 +47,7 @@ include("code/plot-paper.jl")
 
 You need Julia 1.x and git. The GitHub runs used the latest stable Julia release on `windows-latest` runners. The commands below are for bash (Linux, macOS, or Git Bash on Windows). In PowerShell, replace `CUTEST_SPLIT=1 julia ...` with `$env:CUTEST_SPLIT=1; julia ...`.
 
-Each benchmark script handles one part ("split") of the CUTEst problem set. `CUTEST_SPLIT` picks the split, so every script has to be run once per split. Splits are independent, so you can run them in parallel in separate terminals. Parallel runs share the CPU, though, which skews the timings.
+Each benchmark script handles one part ("split") of the CUTEst problem set. `CUTEST_SPLIT` picks the split, so every script has to be run once per split. Splits are independent, so you can run them in parallel in separate terminals.
 
 Results are moved into `Benchmark-runners/code/artifacts/<solver>/` and replace the results that ship with this repository. Running `git checkout code/artifacts` restores the originals. `plot-paper.jl` reads every `.jld2` file in each folder, subfolders included, so the commands below empty each folder before moving new results in.
 
