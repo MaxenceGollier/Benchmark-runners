@@ -114,6 +114,64 @@ function plot_perf_profile(stats::Dict; prefix::String = "", keys = (:l2penalty,
   end
 end
 
+"""
+    plot_ablation(stats, variant_key, tag, labe)
+
+Draw the performance profiles of Penelopt (`:l2penalty_exact`) against the variant
+`variant_key` in terms of objective and gradient evaluations, and save them to
+`paper/figs/CUTEst-ablation-<tag>-{obj,grad}.pdf`.
+"""
+function plot_ablation(
+  stats::Dict,
+  variant_key::Symbol,
+  tag::String,
+  label::String;
+)
+  reference_key = :l2penalty_exact
+  @assert stats[reference_key].name == stats[variant_key].name "Penelopt and $(variant_key) were not run on the same problems."
+
+  solved(df) =
+    (df.status .== :first_order) .|
+    ((df.status .== :infeasible) .& (df.certified_infeasible .== true))
+
+    reference = copy(stats[reference_key])
+    reference.solved = solved(reference)
+    variant = copy(stats[variant_key])
+    variant.solved = solved(variant)
+
+  stats_subset = Dict(:reference => reference, :variant => variant)
+  labels = Dict("reference" => "Penelopt", "variant" => label)
+
+  for (metric, abv, column) in (("objective", "obj", :neval_obj), ("gradient", "grad", :neval_grad))
+    p = performance_profile(
+      stats_subset,
+      df -> ifelse.(df.solved, Float64.(df[!, column]), Inf),
+      title = "Number of $(metric) evaluations",
+      c = :black,
+      legendfontsize = 15,
+      guidefontsize = 15,
+      legend = :bottomright,
+    )
+    # Penelopt first in the legend, solid black; variant dashed gray.
+    order = s -> s[:label] == "reference" ? 0 : 1
+    sort!(p.series_list, by = order)
+    sort!(p.subplots[1].series_list, by = order)
+    for s in p.series_list
+      if s[:label] == "reference"
+        s[:linecolor] = :black
+        s[:linestyle] = :solid
+      else
+        s[:linecolor] = :gray
+        s[:linestyle] = :dash
+      end
+      s[:label] = labels[s[:label]]
+    end
+    # x label only on the bottom row (gradient evaluations)
+    abv == "grad" || plot!(p, xlabel = "")
+    savefig(p, "paper/figs/CUTEst-ablation-$(tag)-$(abv).pdf")
+  end
+end
+
 function infeasibility_table(stats::Dict; prefix::String = "")
 
   keys = (:l2penalty, :ipopt)
@@ -185,3 +243,16 @@ load_stats(uno_dir, stats, "", methods = (:exact,))
 
 plot_perf_profile(stats, prefix = "exact", keys = (:l2penalty, :madnlp))
 plot_perf_profile(stats, prefix = "exact", keys = (:l2penalty, :uno), show_ylabel = false)
+
+## Ablation study (exact Hessian only)
+
+no_watchdog_dir = joinpath("code/artifacts", "Penelopt-no-watchdog")
+@info "Loading Penelopt (no watchdog) benchmark results"
+load_stats(no_watchdog_dir, stats, "_nowatchdog", methods = (:exact,))
+
+monotone_dir = joinpath("code/artifacts", "Penelopt-monotone")
+@info "Loading Penelopt (monotone) benchmark results"
+load_stats(monotone_dir, stats, "_monotone", methods = (:exact,))
+
+plot_ablation(stats, :l2penalty_exact_nowatchdog, "watchdog", "Penelopt (no watchdog)")
+plot_ablation(stats, :l2penalty_exact_monotone, "nonmonotone", "Penelopt (monotone)")
