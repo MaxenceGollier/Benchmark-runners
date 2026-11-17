@@ -2,7 +2,7 @@ using JLD2
 
 using CUTEst, Penelopt, SolverBenchmark, SolverCore
 
-include(joinpath(@__DIR__, "utils", "infeasibility-checker.jl"))
+include(joinpath(@__DIR__, "..", "common", "infeasibility-checker.jl"))
 
 const BENCHMARK_TOL = 1e-6
 const BENCHMARK_MAX_TIME = 300.0
@@ -47,7 +47,7 @@ solvers = Dict(
         max_time = BENCHMARK_MAX_TIME,
         max_iter = typemax(Int),
         linear_solver = "mumps",
-        r2n_monotone = false,
+        r2n_m_monotone = 1,
       )
 
       set_solver_specific!(stats, :certified_infeasible, false)
