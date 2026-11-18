@@ -924,7 +924,7 @@ version = "2.8.8"
 
 [[deps.Penelopt]]
 deps = ["LinearAlgebra", "LinearOperators", "MUMPS", "NLPModels", "NLPModelsModifiers", "Printf", "QuadraticModels", "SolverCore", "SparseArrays", "SparseMatricesCOO"]
-path = "../../ExactPenalty.jl"
+path = "../../Penelopt.jl"
 uuid = "9416bf39-c24a-5b52-a5c2-6dfe9a752fef"
 version = "1.0.0"
 

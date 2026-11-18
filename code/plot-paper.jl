@@ -109,8 +109,8 @@ function plot_perf_profile(stats::Dict; prefix::String = "", keys = (:l2penalty,
     metric == "wall-clock time" || plot!(p, xlabel = "")
     show_ylabel || plot!(p, ylabel = "")
     name =
-      prefix == "" ? "paper/figs/CUTEst-$(abv).pdf" :
-      "paper/figs/CUTEst-" * prefix * "-" * String(keys[2]) * "-$(abv).pdf"
+      prefix == "" ? joinpath(@__DIR__, "..", "paper/figs/CUTEst-$(abv).pdf") :
+      joinpath(@__DIR__, "..", "paper/figs/CUTEst-" * prefix * "-" * String(keys[2]) * "-$(abv).pdf")
     savefig(name)
   end
 end
@@ -169,7 +169,7 @@ function plot_ablation(
     end
     # x label only on the bottom row (gradient evaluations)
     abv == "grad" || plot!(p, xlabel = "")
-    savefig(p, "paper/figs/CUTEst-ablation-$(tag)-$(abv).pdf")
+    savefig(p, joinpath(@__DIR__, "..", "paper/figs/CUTEst-ablation-$(tag)-$(abv).pdf"))
   end
 end
 
@@ -202,7 +202,7 @@ function infeasibility_table(stats::Dict; prefix::String = "")
     ["Problem", "n", "m", "Penelopt (BFGS)", "Certified", "IPOPT (BFGS)", "Certified"] :
     ["Problem", "n", "m", "Penelopt (default)", "Certified", "IPOPT (default)", "Certified"]
 
-  open("paper/tables/infeasibility_table.tex", "w") do io
+  open(joinpath(@__DIR__, "..", "paper/tables/infeasibility_table.tex"), "w") do io
     pretty_table(io, df;
         backend    = Val(:latex),
         header     = header,
@@ -216,12 +216,12 @@ end
 stats = Dict{Symbol,DataFrame}()
 
 # load Penelopt
-penelopt_dir = joinpath("code/artifacts", "Penelopt")
+penelopt_dir = joinpath(@__DIR__, "artifacts", "Penelopt")
 @info "Loading penelopt benchmark results"
 load_stats(penelopt_dir, stats, "")
 
 # load IPOPT
-ipopt_dir = joinpath("code/artifacts", "IPOPT")
+ipopt_dir = joinpath(@__DIR__, "artifacts", "IPOPT")
 @info "Loading ipopt benchmark results"
 load_stats(ipopt_dir, stats, "")
 
@@ -234,11 +234,11 @@ infeasibility_table(stats, prefix = "exact")
 
 ## MadNLP and Uno benchmarks
 
-madnlp_dir = joinpath("code/artifacts", "MadNLP")
+madnlp_dir = joinpath(@__DIR__, "artifacts", "MadNLP")
 @info "Loading madnlp benchmark results"
 load_stats(madnlp_dir, stats, "", methods = (:exact,))
 
-uno_dir = joinpath("code/artifacts", "Uno")
+uno_dir = joinpath(@__DIR__, "artifacts", "Uno")
 @info "Loading uno benchmark results"
 load_stats(uno_dir, stats, "", methods = (:exact,))
 
@@ -247,11 +247,11 @@ plot_perf_profile(stats, prefix = "exact", keys = (:l2penalty, :uno), show_ylabe
 
 ## Ablation study (exact Hessian only)
 
-no_watchdog_dir = joinpath("code/artifacts", "Penelopt-no-watchdog")
+no_watchdog_dir = joinpath(@__DIR__, "artifacts", "Penelopt-no-watchdog")
 @info "Loading Penelopt (no watchdog) benchmark results"
 load_stats(no_watchdog_dir, stats, "_nowatchdog", methods = (:exact,))
 
-monotone_dir = joinpath("code/artifacts", "Penelopt-monotone")
+monotone_dir = joinpath(@__DIR__, "artifacts", "Penelopt-monotone")
 @info "Loading Penelopt (monotone) benchmark results"
 load_stats(monotone_dir, stats, "_monotone", methods = (:exact,))
 
