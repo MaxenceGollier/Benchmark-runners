@@ -2,7 +2,7 @@ using JLD2
 
 using CUTEst, NLPModelsIpopt, SolverBenchmark, SolverCore
 
-include(joinpath(@__DIR__, "utils", "infeasibility-checker.jl"))
+include(joinpath(@__DIR__, "..", "common", "infeasibility-checker.jl"))
 
 const BENCHMARK_TOL = 1e-6
 const BENCHMARK_MAX_TIME = 300.0
@@ -50,7 +50,7 @@ solvers = Dict(
         compl_inf_tol = Inf,
         acceptable_iter = 0,
         s_max = floatmax(Float64),
-        max_cpu_time = BENCHMARK_MAX_TIME,
+        max_wall_time = BENCHMARK_MAX_TIME,
         hessian_approximation = "limited-memory",
         max_iter = typemax(Int32),
       )
