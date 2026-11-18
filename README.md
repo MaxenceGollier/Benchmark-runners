@@ -21,7 +21,7 @@
 
 ## How to reproduce the benchmark runs
 
-1. Clone both repositories side by side, with Penelopt at the `v1.0.0` tag:
+1. Clone this repository.
 
    ```bash
    mkdir penelopt-benchmarks && cd penelopt-benchmarks
