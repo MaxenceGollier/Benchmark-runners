@@ -8,6 +8,8 @@ using PrettyTables
 
 const METHODS = (:exact, :lbfgs)
 
+const T_FLOOR = 1e-3  # seconds; below this, timings are noise and count as ties
+
 function load_stats(dir::AbstractString, stats, suffix = ""; methods = METHODS)
 
   for method in methods
@@ -61,7 +63,7 @@ function plot_perf_profile(stats::Dict; prefix::String = "", keys = (:l2penalty,
   pairs = [
     ("gradient", "grad", df -> .!solved(df) * Inf + df.neval_grad),
     ("objective", "obj", df -> .!solved(df) * Inf + df.neval_obj),
-    ("CPU time", "time", df -> .!solved(df) * Inf + df.elapsed_time),
+    ("wall-clock time", "time", df -> ifelse.(solved(df), max.(df.elapsed_time, T_FLOOR), Inf)),
   ]
   keys = prefix == "" ? keys : Symbol.(string.(keys) .* "_" .* prefix)
   label_dict = Dict(
@@ -75,7 +77,7 @@ function plot_perf_profile(stats::Dict; prefix::String = "", keys = (:l2penalty,
   label = prefix == "exact" ? Symbol.(String.(keys)[:1:(end-5)]) : keys
   for (metric, abv, f) in pairs
     stats_subset = Dict(key => stats[key] for key in keys)
-    title = metric == "CPU time" ? "CPU Time" : "Number of $(metric) evaluations"
+    title = metric == "wall-clock time" ? "Wall-clock Time" : "Number of $(metric) evaluations"
     p = performance_profile(
       stats_subset,
       f,
@@ -104,8 +106,7 @@ function plot_perf_profile(stats::Dict; prefix::String = "", keys = (:l2penalty,
     for s in series
       s[:label] = label_dict[Symbol(s[:label])]
     end
-    # Axis labels: x only on the CPU time row, y only on the left column
-    metric == "CPU time" || plot!(p, xlabel = "")
+    metric == "wall-clock time" || plot!(p, xlabel = "")
     show_ylabel || plot!(p, ylabel = "")
     name =
       prefix == "" ? "paper/figs/CUTEst-$(abv).pdf" :

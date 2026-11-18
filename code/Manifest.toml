@@ -2,7 +2,7 @@
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "166853f6eb8cdf168a1aac997c34faf6e7dcc14b"
+project_hash = "ce4c2de284dc6c9b0d33019cf8af91115e74b611"
 
 [[deps.AMD]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse_jll"]
@@ -195,6 +195,11 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
+
+[[deps.Distributed]]
+deps = ["Random", "Serialization", "Sockets"]
+uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+version = "1.11.0"
 
 [[deps.DocStringExtensions]]
 git-tree-sha1 = "7442a5dfe1ebb773c29cc2962a8980f47221d76c"
@@ -675,6 +680,58 @@ git-tree-sha1 = "5ecd92439c60a50c49bd6e96192e9d486b24b050"
 uuid = "d00139f3-1899-568f-a2f0-47f597d42d70"
 version = "5.1.4+0"
 
+[[deps.MPI]]
+deps = ["Distributed", "DocStringExtensions", "Libdl", "MPIABI_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenMPI_jll", "PkgVersion", "PrecompileTools", "Serialization", "Sockets"]
+git-tree-sha1 = "7b7af40eaafefa3b85178e4028b5a094880e5abd"
+uuid = "da04e1cc-30fd-572f-bb4f-1f8673147195"
+version = "0.20.29"
+
+    [deps.MPI.extensions]
+    AMDGPUExt = "AMDGPU"
+    CUDAExt = "CUDA"
+    OneAPIExt = "oneAPI"
+
+    [deps.MPI.weakdeps]
+    AMDGPU = "21141c5a-9bdb-4563-92ae-f87d6854732e"
+    CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+    oneAPI = "8f75cd03-7ff8-4ecb-9b8f-daf728133b1b"
+
+[[deps.MPIABI_jll]]
+deps = ["Artifacts", "Hwloc_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "MPIPreferences", "TOML"]
+git-tree-sha1 = "42e2cada9f35500b4d227106ce2b60e85d9f15bc"
+uuid = "b5ada748-db0f-5fc0-8972-9331c762740c"
+version = "1.0.1+0"
+
+[[deps.MPICH_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "Hwloc_jll", "JLLWrappers", "Libdl", "MPIPreferences", "TOML"]
+git-tree-sha1 = "08cb47f95a2f1b795e43a9e4f9783e68ecdc1ca6"
+uuid = "7cb0a576-ebde-5e09-9194-50597f1243b4"
+version = "5.0.3+0"
+
+[[deps.MPIPreferences]]
+deps = ["Libdl", "Preferences"]
+git-tree-sha1 = "8e98d5d80b87403c311fd51e8455d4546ba7a5f8"
+uuid = "3da0fdf6-3ccc-4f1b-acd9-58baa6c99267"
+version = "0.1.12"
+
+[[deps.MPItrampoline_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "MPIPreferences", "TOML"]
+git-tree-sha1 = "09a99227205419c00e734f413ee98c18bc1b02e4"
+uuid = "f1f71cc9-e9ae-5b93-9b94-4fe0e1ad3748"
+version = "5.5.7+0"
+
+[[deps.MUMPS]]
+deps = ["Libdl", "LinearAlgebra", "MPI", "MUMPS_jll", "MUMPS_seq_jll", "OpenBLAS32_jll", "SparseArrays"]
+git-tree-sha1 = "4b4aa5d9a277cfe471d27375ac709d93b0650702"
+uuid = "55d2b088-9f4e-11e9-26c0-150b02ea6a46"
+version = "1.7.1"
+
+[[deps.MUMPS_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl", "METIS_jll", "MPIABI_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenMPI_jll", "PARMETIS_jll", "SCALAPACK32_jll", "SCOTCH_jll", "TOML", "libblastrampoline_jll", "mpif_jll"]
+git-tree-sha1 = "032f6fdc1918f6250cf2fd09da8b77963098c631"
+uuid = "ca64183c-ec4f-5579-95d5-17e128c21291"
+version = "5.9.6+0"
+
 [[deps.MUMPS_seq_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "METIS_jll", "libblastrampoline_jll"]
 git-tree-sha1 = "fc1daa0ab5a0d7a0a34d5168a711cbf02b2cb0cc"
@@ -725,6 +782,12 @@ version = "2.28.1010+0"
 git-tree-sha1 = "b513cedd20d9c914783d8ad83d08120702bf2c77"
 uuid = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
 version = "0.3.3"
+
+[[deps.MicrosoftMPI_jll]]
+deps = ["Artifacts", "JLLWrappers", "LazyArtifacts", "Libdl", "MPIPreferences", "TOML"]
+git-tree-sha1 = "3350d35d0ebcf7ccee0c66290b8e95d82419ef6f"
+uuid = "9237b28f-5490-5468-be7b-bb81f5f5e6cf"
+version = "10.1.5+0"
 
 [[deps.Missings]]
 deps = ["DataAPI"]
@@ -790,6 +853,12 @@ deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
 version = "0.8.7+0"
 
+[[deps.OpenMPI_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "Hwloc_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "MPIPreferences", "TOML", "Zlib_jll"]
+git-tree-sha1 = "0dba69ef957d790d41484ca7c20212c5ac806738"
+uuid = "fe0851c0-eecd-5654-98d4-656369965a5c"
+version = "5.0.14+0"
+
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
@@ -805,6 +874,12 @@ version = "1.6.1+0"
 git-tree-sha1 = "94ba93778373a53bfd5a0caaf7d809c445292ff4"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 version = "1.8.2"
+
+[[deps.PARMETIS_jll]]
+deps = ["Artifacts", "JLLWrappers", "LazyArtifacts", "Libdl", "METIS_jll", "MPIABI_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenMPI_jll", "TOML"]
+git-tree-sha1 = "6adb501b217708273febcd04ad9540840299b3b4"
+uuid = "b247a4be-ddc1-5759-8008-7e02fe3dbdaa"
+version = "4.0.9+0"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -847,6 +922,20 @@ git-tree-sha1 = "ba0dc8a8a67cacac4842631f960c046e4e563675"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.8.8"
 
+[[deps.Penelopt]]
+deps = ["LinearAlgebra", "LinearOperators", "MUMPS", "NLPModels", "NLPModelsModifiers", "Printf", "QuadraticModels", "SolverCore", "SparseArrays", "SparseMatricesCOO"]
+path = "../../ExactPenalty.jl"
+uuid = "9416bf39-c24a-5b52-a5c2-6dfe9a752fef"
+version = "1.0.0"
+
+    [deps.Penelopt.extensions]
+    PeneloptHSLExt = "HSL"
+    PeneloptLDLFactorizationsExt = "LDLFactorizations"
+
+    [deps.Penelopt.weakdeps]
+    HSL = "34c5aeac-e683-54a6-a0e9-6e0fdc586c50"
+    LDLFactorizations = "40e66cde-538c-5869-a4ad-c39174c6795b"
+
 [[deps.Pixman_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl"]
 git-tree-sha1 = "e4a6721aa89e62e5d4217c0b21bd714263779dda"
@@ -867,6 +956,12 @@ deps = ["BenchmarkTools", "Dates", "InteractiveUtils", "JSON", "LibGit2", "Loggi
 git-tree-sha1 = "10940959d1174f5402729bb0891cafb785c0e927"
 uuid = "32113eaa-f34f-5b0d-bd6c-c81e245fc73d"
 version = "0.2.15"
+
+[[deps.PkgVersion]]
+deps = ["Pkg"]
+git-tree-sha1 = "f9501cc0430a26bc3d156ae1b5b0c1b47af4d6da"
+uuid = "eebad327-c553-4316-9ea0-9fa01ccd7688"
+version = "0.3.3"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -987,6 +1082,18 @@ version = "1.1.0"
     [deps.Quadmath.weakdeps]
     SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
+[[deps.QuadraticModels]]
+deps = ["LinearAlgebra", "LinearOperators", "NLPModels", "NLPModelsModifiers", "SolverCore", "SparseArrays", "SparseMatricesCOO"]
+git-tree-sha1 = "2f52ad39812e015d38242c7ade7ffbce2cd7ee2f"
+uuid = "f468eda6-eac5-11e8-05a5-ff9e497bcd19"
+version = "0.9.16"
+
+    [deps.QuadraticModels.extensions]
+    QuadraticModelsQPSReaderExt = "QPSReader"
+
+    [deps.QuadraticModels.weakdeps]
+    QPSReader = "10f199a5-22af-520b-b891-7ce84a7b1bd0"
+
 [[deps.REPL]]
 deps = ["InteractiveUtils", "JuliaSyntaxHighlighting", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
@@ -1031,6 +1138,18 @@ deps = ["NetworkOptions", "OpenSSL_jll", "PrecompileTools", "Random", "SHA"]
 git-tree-sha1 = "2e359a0b85bbf6a4c5f95b087d307bf1e45f1982"
 uuid = "802f3686-a58f-41ce-bb0c-3c43c75bba36"
 version = "1.4.4"
+
+[[deps.SCALAPACK32_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "MPIABI_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenMPI_jll", "TOML", "libblastrampoline_jll", "mpif_jll"]
+git-tree-sha1 = "6c4cc8b37c325d69ea17a4cb09174ece223dcf4e"
+uuid = "aabda75e-bfe4-5a37-92e3-ffe54af3c273"
+version = "2.2.302+0"
+
+[[deps.SCOTCH_jll]]
+deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "XZ_jll", "Zlib_jll"]
+git-tree-sha1 = "081c66492f9280b4fe7a8bb2628b62ab4b91cc5c"
+uuid = "a8d0f55d-b80e-548d-aff6-1a04c175f0f9"
+version = "7.0.11+0"
 
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
@@ -1112,6 +1231,12 @@ version = "1.2.3"
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.12.0"
+
+[[deps.SparseMatricesCOO]]
+deps = ["LinearAlgebra", "SparseArrays"]
+git-tree-sha1 = "87f0b186943b0630e454e33699278e34748dd0fa"
+uuid = "fa32481b-f100-4b48-8dc8-c62f61b13870"
+version = "0.2.6"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
@@ -1588,6 +1713,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll"]
 git-tree-sha1 = "11e1772e7f3cc987e9d3de991dd4f6b2602663a5"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
 version = "1.3.8+0"
+
+[[deps.mpif_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "MPIABI_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenMPI_jll", "TOML"]
+git-tree-sha1 = "52e322f7a6d418576cdeb043dd2a7f7ad9a8abd0"
+uuid = "9aeb927a-4695-514f-a259-621a69f20ec0"
+version = "1.0.1+0"
 
 [[deps.mtdev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

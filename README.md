@@ -36,10 +36,12 @@
     Pkg.activate("Benchmark-runners/code")
     Pkg.instantiate()
 
-    Pkg.develop("Penelopt.jl") # Use local Penelopt installation
+    Pkg.develop(path = "Penelopt.jl") # Use local Penelopt installation
 
     include("Benchmark-runners/code/run-benchmarks.jl")
    ```
+
+   Note: on MacOS/Linux you need `gfortran` to be installed to let the script generate the CUTEst problems.
 
 3. Artifacts can be found in the `Benchmark-runners/code/artifacts/` folder.
 
