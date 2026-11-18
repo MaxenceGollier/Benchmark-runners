@@ -25,7 +25,6 @@
 
    ```bash
    mkdir penelopt-benchmarks && cd penelopt-benchmarks
-   git clone --branch v1.0.0 https://github.com/JuliaSmoothOptimizers/Penelopt.jl
    git clone --branch v1.0.0 https://github.com/MaxenceGollier/Benchmark-runners
    ```
 
@@ -35,8 +34,6 @@
     using Pkg
     Pkg.activate("Benchmark-runners/code")
     Pkg.instantiate()
-
-    Pkg.develop(path = "Penelopt.jl") # Use local Penelopt installation
 
     include("Benchmark-runners/code/run-benchmarks.jl")
    ```
